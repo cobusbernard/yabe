@@ -3,3 +3,7 @@
 /lib
 /test-result
 /logs
+.classpath
+.project
+.settings
+/eclipse

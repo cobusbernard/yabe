@@ -2,3 +2,7 @@
 
 require:
     - play
+
+require:
+     play -> cobertura 2.2
+
