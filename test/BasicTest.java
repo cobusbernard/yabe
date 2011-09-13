@@ -118,6 +118,17 @@ public class BasicTest extends UnitTest {
 	}
 	
 	@Test
+	public void tryConnectAsUser() {
+	    // Create a new user and save it
+	    new User("bob@gmail.com", "secret", "Bob").save();
+	    
+	    // Test 
+	    assertNotNull(User.connect("bob@gmail.com", "secret"));
+	    assertNull(User.connect("bob@gmail.com", "badpassword"));
+	    assertNull(User.connect("tom@gmail.com", "secret"));
+	}	
+	
+	@Test
 	public void fullTest() {
 	    Fixtures.loadModels("data.yml");
 	 
@@ -152,6 +163,40 @@ public class BasicTest extends UnitTest {
 	    frontPost.addComment("Jim", "Hello guys");
 	    assertEquals(3, frontPost.comments.size());
 	    assertEquals(4, Comment.count());
+	}
+	
+	@Test
+	public void testTags() {
+	    // Create a new user and save it
+	    User bob = new User("bob@gmail.com", "secret", "Bob").save();
+	 
+	    // Create a new post
+	    Post bobPost = new Post(bob, "My first post", "Hello world").save();
+	    Post anotherBobPost = new Post(bob, "Hop", "Hello world").save();
+	    
+	    // Well
+	    assertEquals(0, Post.findTaggedWith("Red").size());
+	    
+	    // Tag it now
+	    bobPost.tagItWith("Red").tagItWith("Blue").save();
+	    anotherBobPost.tagItWith("Red").tagItWith("Green").save();
+	    
+	    // Check
+	    assertEquals(2, Post.findTaggedWith("Red").size());        
+	    assertEquals(1, Post.findTaggedWith("Blue").size());
+	    assertEquals(1, Post.findTaggedWith("Green").size());
+	    
+	    //Multiple tags
+	    assertEquals(1, Post.findTaggedWith("Red", "Blue").size());   
+	    assertEquals(1, Post.findTaggedWith("Red", "Green").size());   
+	    assertEquals(0, Post.findTaggedWith("Red", "Green", "Blue").size());  
+	    assertEquals(0, Post.findTaggedWith("Green", "Blue").size());
+	    
+	    List<Map> cloud = Tag.getCloud();
+	    assertEquals(
+	        "[{tag=Blue, pound=1}, {tag=Green, pound=1}, {tag=Red, pound=2}]", 
+	        cloud.toString()
+	    );
 	}
 	
 }
